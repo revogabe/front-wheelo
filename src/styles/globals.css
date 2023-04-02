@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  h1, h2, h3, h4, h5, h6, p, a, li, span, div, input, textarea, button {
+    @apply text-gray-12
+  }
+}
+
+@layer components {
+  .transition {
+    @apply transition-all duration-200 ease-out;
+  }
+}

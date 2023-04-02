@@ -1,7 +1,8 @@
-import { TailwindIndicator } from '@/components/TailwindIndicator'
 import { Poppins } from 'next/font/google'
 import { ReactNode } from 'react'
 import '../styles/globals.css'
+import Provider from './Provider'
+import { GlobalContextProvider } from '@/context/global'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -16,9 +17,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.className}>
-      <body className="bg-gray-100">
-        {children}
-        <TailwindIndicator />
+      <body className="bg-gray-1">
+        <Provider>
+          <GlobalContextProvider>{children}</GlobalContextProvider>
+        </Provider>
       </body>
     </html>
   )
