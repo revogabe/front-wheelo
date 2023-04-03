@@ -10,29 +10,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ToastNotification } from './ToastNotification'
 import { Box } from '@mui/material'
 import { ModalUnstyled } from '@mui/base'
+import { CarIdProps } from '@/app/dashboard/components/HeroContainerFuel'
 
-const FormCarsSchema = z.object({
-  brand: z.string().min(2, { message: 'brand INVALIDA' }).max(64),
-  model: z.string().min(2, { message: 'model INVALIDO' }).max(64),
-  year: z.coerce.number().refine((value) => value > 1900 && value < 2022 + 1, {
-    message: 'Ano INVALIDO',
-  }),
-  plate: z
-    .string()
-    .min(7, { message: 'plate INVALIDA' })
-    .max(7)
-    .regex(/^[A-Z]{3}[0-9]{4}$/, { message: 'PLACA INVALIDA' }),
-  color: z.string().min(2, { message: 'color INVALIDA' }).max(64),
-  power: z.string().min(2, { message: 'power INVALIDA' }).max(64),
-  renavam: z.string().min(11, { message: 'RENAVAM INVALIDO' }).max(11),
+const FormFuelSchema = z.object({
+  typeFuel: z.string().min(2, { message: 'Nome do combustível curto' }).max(64),
+  quantity: z.number(),
+  price: z.number(),
 })
 
-type FormCarsProps = z.infer<typeof FormCarsSchema>
+type FormFuelProps = z.infer<typeof FormFuelSchema>
 
-export default function ModalAdd() {
+export default function ModalAddFuel({ carId }: CarIdProps) {
   const { token } = parseCookies()
   const [open, setOpen] = useState(false)
-  const [plate, setplate] = useState('')
   const [toast, setToast] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -41,15 +31,9 @@ export default function ModalAdd() {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<FormCarsProps>({
-    resolver: zodResolver(FormCarsSchema),
+  } = useForm<FormFuelProps>({
+    resolver: zodResolver(FormFuelSchema),
   })
-
-  const handleChangeplate = (event: { target: { value: string } }) => {
-    const result = event.target.value.toUpperCase()
-
-    setplate(result)
-  }
 
   function toastCheck() {
     setToast(true)
@@ -61,9 +45,14 @@ export default function ModalAdd() {
 
   const queryClient = useQueryClient()
 
-  const createCar = useMutation({
-    mutationFn: (data: FormCarsProps & { year: number }) => {
-      return api.post('/cars/create', data, {
+  const createFuel = useMutation({
+    mutationFn: (data: FormFuelProps) => {
+      return api.post(`/supply/create/${carId}`, data, {
+        data: {
+          typeFuel: data.typeFuel,
+          quantity: data.quantity,
+          price: data.price,
+        },
         headers: {
           authorization: `${token}`,
         },
@@ -71,30 +60,27 @@ export default function ModalAdd() {
     },
   })
 
-  async function handleForm(body: FormCarsProps) {
-    createCar.mutate(
-      { ...body, year: Number(body.year) },
-      {
-        onSuccess: async () => {
-          toastCheck()
-          handleClose()
-          await queryClient.refetchQueries({ queryKey: ['listCars'] })
-        },
+  async function handleForm(body: FormFuelProps) {
+    createFuel.mutate(body, {
+      onSuccess: async () => {
+        toastCheck()
+        handleClose()
+        await queryClient.refetchQueries({ queryKey: ['supplyList'] })
       },
-    )
+    })
   }
 
   return (
     <div className="h-full w-full">
       <ToastNotification
         data-state={toast}
-        title="Carro adicionado!"
+        title="Combustível adicionado!"
         className={`${
           toast
             ? 'fixed bottom-0 right-0 translate-y-0 opacity-100 animate-toast-slide-in'
             : 'fixed bottom-0 right-0 translate-y-full opacity-0'
         } transition-all duration-300 ease-out`}
-        description="O carro foi adicionado com sucesso!"
+        description="O combustível foi adicionado com sucesso!"
       />
       <ButtonUnstyled
         className="bg-gray-12 h-full max-lg:w-full hover:bg-gray-4 transition border-gray-6 border rounded-md hover:border-gray-12 text-gray-1 hover:text-gray-12 py-3 px-6 "
@@ -113,53 +99,21 @@ export default function ModalAdd() {
           >
             <input
               type="text"
-              {...register('brand')}
+              {...register('typeFuel')}
               className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-              placeholder="Marca: Fiat, Volkswagen, etc..."
+              placeholder="Tipo de Combustível"
             />
             <input
-              type="text"
-              {...register('model')}
+              type="number"
+              {...register('quantity', { valueAsNumber: true })}
               className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-              placeholder="Modelo: Uno, Gol, etc..."
+              placeholder="Quantidade (Litros)"
             />
             <input
-              type="text"
-              {...register('color')}
+              type="number"
+              {...register('price', { valueAsNumber: true })}
               className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-              placeholder="Cor: Vermelho, Azul, Preto, etc..."
-            />
-            <div className="flex gap-3">
-              <input
-                type="text"
-                {...register('year')}
-                maxLength={4}
-                className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-                placeholder="Ano"
-              />
-
-              <input
-                type="text"
-                {...register('power')}
-                className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-                placeholder="Potência"
-              />
-            </div>
-            <input
-              type="text"
-              {...register('plate')}
-              onChange={handleChangeplate}
-              value={plate}
-              maxLength={7}
-              className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-              placeholder="Placa: AAA-0000"
-            />
-            <input
-              type="text"
-              {...register('renavam')}
-              maxLength={11}
-              className="bg-gray-1 border border-gray-7 w-full px-4 py-4 focus:outline-orange-11 rounded-md focus:border-transparent "
-              placeholder="Renavam: 00000000000"
+              placeholder="Preço (R$)"
             />
             <div className="flex flex-col gap-3">
               <button

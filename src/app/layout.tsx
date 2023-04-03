@@ -17,7 +17,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.className}>
-      <body className="bg-gray-1">
+      <body className="bg-gray-1 dark-theme">
         <Provider>
           <GlobalContextProvider>{children}</GlobalContextProvider>
         </Provider>

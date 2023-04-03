@@ -9,7 +9,7 @@ export function Header() {
   const { userLoading } = useAuthContext()
 
   return userLoading ? (
-    <div className="fixed w-full py-4 border-b border-gray-5 px-8 top-0 flex items-center justify-between z-50 bg-gray-1">
+    <div className="fixed w-full py-4 border-b border-gray-5 px-8 top-0 flex items-center justify-between z-50 bg-gray-1 max-md:hidden">
       <Link href="/dashboard">
         <div className="flex w-max gap-1 items-center justify-center">
           <WheelIcon
@@ -27,7 +27,7 @@ export function Header() {
       </div>
     </div>
   ) : (
-    <div className="fixed w-full py-4 border-b border-gray-5 px-8 top-0 flex items-center justify-between z-50 bg-gray-1">
+    <div className="fixed w-full py-4 border-b border-gray-5 px-8 top-0 flex items-center justify-between z-50 bg-gray-1 max-md:-translate-y-full transition-transform">
       <Link href="/dashboard">
         <div className="flex w-max gap-1 items-center justify-center">
           <WheelIcon width={24} height={24} className="text-orange-10" />
