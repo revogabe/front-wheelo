@@ -1,5 +1,5 @@
 import axios from 'axios'
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PLUBLIC_API_URL,
+  baseURL: 'https://r948qv-3333.csb.app/api',
 })
