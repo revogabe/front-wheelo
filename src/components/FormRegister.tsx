@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useGlobalContext } from '@/context/global'
 import { WheelIcon } from './icons/traffic-icon'
+import axios from 'axios'
 
 const FormRegisterData = z
   .object({
@@ -27,7 +28,8 @@ const FormRegisterData = z
 export type FormResgisterProps = z.infer<typeof FormRegisterData>
 
 export function FormRegister() {
-  const { handleForm } = useGlobalContext()
+  const { handleForm, isLoadingRegister, isErrorRegister, errorRegister } =
+    useGlobalContext()
   const [value, setValue] = useState('')
 
   const handleChange = (event: { target: { value: string } }) => {
@@ -42,7 +44,7 @@ export function FormRegister() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm<FormResgisterProps>({
     resolver: zodResolver(FormRegisterData),
   })
@@ -126,12 +128,17 @@ export function FormRegister() {
         <button
           type="submit"
           className="bg-gray-12 rounded-md py-4 hover:bg-gray-3 group transition-all border-transparent border hover:border-gray-12 ease-out duration-200 focus:outline-orange-11"
-          disabled={isSubmitting}
+          disabled={isLoadingRegister}
         >
-          <p className="text-base font-bold text-white group-hover:text-gray-12 transition-all ease-out duration-200">
-            Entrar
+          <p className="text-base font-bold text-white group-hover:text-gray-12 transition-all ease-out duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoadingRegister ? 'Criando conta...' : 'Criar conta'}
           </p>
         </button>
+        {isErrorRegister && axios?.isAxiosError(errorRegister) && (
+          <p className="text-sm text-red-500">
+            {errorRegister?.response?.data?.message}
+          </p>
+        )}
         <Link
           href="/"
           className="mt-2 self-center md:flex w-max items-center justify-center focus:outline-orange-11 p-2"

@@ -61,7 +61,7 @@ export default function ModalAdd() {
 
   const queryClient = useQueryClient()
 
-  const createCar = useMutation({
+  const { mutate, isLoading } = useMutation({
     mutationFn: (data: FormCarsProps & { year: number }) => {
       return api.post('/cars/create', data, {
         headers: {
@@ -72,7 +72,7 @@ export default function ModalAdd() {
   })
 
   async function handleForm(body: FormCarsProps) {
-    createCar.mutate(
+    mutate(
       { ...body, year: Number(body.year) },
       {
         onSuccess: async () => {
@@ -97,10 +97,11 @@ export default function ModalAdd() {
         description="O carro foi adicionado com sucesso!"
       />
       <ButtonUnstyled
-        className="bg-gray-12 h-full max-lg:w-full hover:bg-gray-4 transition border-gray-6 border rounded-md hover:border-gray-12 text-gray-1 hover:text-gray-12 py-3 px-6 "
+        className="bg-gray-12 h-full max-lg:w-full hover:bg-gray-4 transition border-gray-6 border rounded-md hover:border-gray-12 text-gray-1 hover:text-gray-12 py-3 px-6 disabled:opacity-20 disabled:cursor-not-allowed"
         onClick={handleOpen}
+        disabled={isLoading}
       >
-        Adicionar Carro
+        {isLoading ? 'Adicionando...' : 'Adicionar carro'}
       </ButtonUnstyled>
       <ModalUnstyled
         open={open}

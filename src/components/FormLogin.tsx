@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useGlobalContext } from '@/context/global'
 import { WheelIcon } from './icons/traffic-icon'
+import axios from 'axios'
 
 const FormLoginData = z.object({
   cpf: z
@@ -20,7 +21,7 @@ const FormLoginData = z.object({
 export type FormLoginProps = z.infer<typeof FormLoginData>
 
 export function FormLogin() {
-  const { handleSubmitLogin } = useGlobalContext()
+  const { handleSubmitLogin, isLoading, isError, error } = useGlobalContext()
   const [value, setValue] = useState('')
 
   const handleChange = (event: { target: { value: string } }) => {
@@ -32,10 +33,12 @@ export function FormLogin() {
     setValue(result)
   }
 
+  console.log(isError, error)
+
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm<FormLoginProps>({
     resolver: zodResolver(FormLoginData),
   })
@@ -87,13 +90,18 @@ export function FormLogin() {
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
+        {isError && axios?.isAxiosError(error) && (
+          <p className="text-sm text-red-500">
+            {error?.response?.data?.message}
+          </p>
+        )}
         <button
           type="submit"
           className="bg-gray-12 rounded-md py-4 hover:bg-gray-3 group transition-all border-transparent border hover:border-gray-12 ease-out duration-200 focus:outline-orange-11"
-          disabled={isSubmitting}
+          disabled={isLoading}
         >
-          <p className="text-base font-bold text-white group-hover:text-gray-12 transition-all ease-out duration-200">
-            Entrar
+          <p className="text-base font-bold text-white group-hover:text-gray-12 transition-all ease-out duration-200 disabled:opacity-30 disabled:cursor-not-allowed">
+            {isLoading ? 'Entrando...' : 'Entrar'}
           </p>
         </button>
         <Link
