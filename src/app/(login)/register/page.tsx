@@ -5,7 +5,6 @@ import Image from 'next/image'
 export default function Register() {
   return (
     <main className="mx-auto flex-col-reverse flex md:flex-row gap-16 h-screen w-full items-center justify-between p-8 btn">
-      <TailwindIndicator />
       <FormRegister />
       <div className="w-full h-full rounded-2xl overflow-hidden  max-md:h-48  ">
         <Image
