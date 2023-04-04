@@ -14,6 +14,7 @@ export const usePostRegister = () => {
       const { data } = await api.post('/register', {
         cpf,
         password,
+        name,
       })
 
       return data
