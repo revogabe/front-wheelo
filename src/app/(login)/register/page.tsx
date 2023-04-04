@@ -1,5 +1,4 @@
 import { FormRegister } from '@/components/FormRegister'
-import { TailwindIndicator } from '@/components/TailwindIndicator'
 import Image from 'next/image'
 
 export default function Register() {
